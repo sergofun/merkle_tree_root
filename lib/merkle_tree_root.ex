@@ -23,36 +23,37 @@ defmodule MerkleTreeRoot do
         {:ok, "b360ad8a433373acf304bbaf51ab35e67830b494cb58c3fbac9192772046eaaa"}
   """
   @spec compute([transaction()], keyword()) :: {:ok, root()} | {:error, String.t()}
-  def compute(transactions, options \\ []) do
+  def compute(transactions, options \\ [])
+  def compute([], _options),
+      do: {:error, "wrong transactions collection"}
+
+  def compute(transactions, options) do
     parallel_processing = Keyword.get(options, :parallel, false)
 
     transactions
     |> prepare_first_layer_nodes(parallel_processing)
     |> process_tree(parallel_processing)
-  rescue
-    error ->
-      trace = Exception.format_stacktrace(__STACKTRACE__)
-
-      Logger.error(
-        "Error during merkle tree root calculation: #{inspect(error)}, trace: #{inspect(trace)}"
-      )
-
-      {:error, "merkle tree root error"}
   end
 
   # Prepares bottom layer nodes. In case of parallel processing it also assigns sequence numbers for the subsequent
   # sorting
   @spec prepare_first_layer_nodes([transaction()], boolean()) :: [tree_node()]
-  defp prepare_first_layer_nodes(transactions, false),
-       do: Stream.map(transactions, &hash(&1))
+  defp prepare_first_layer_nodes(transactions, false) do
+    transactions
+    |> Stream.map(&hash(&1))
+    |> Enum.to_list()
+  end
 
   defp prepare_first_layer_nodes(transactions, true) do
     transactions
     |> Stream.transform(0, &{[{&2, hash(&1)}], &2 + 1})
     |> Stream.chunk_every(2)
     |> Flow.from_enumerable()
-    |> Flow.map(fn [{left_num, left_node}, {right_num, right_node}] ->
-      {left_num + right_num, hash(left_node, right_node)}
+    |> Flow.reduce(fn -> [] end, fn
+      [{left_num, left_node}, {right_num, right_node}], acc ->
+        [{left_num + right_num, hash(left_node, right_node)} | acc]
+      result, [] -> result
+      [{num, last_node}], acc -> [{num + num, hash(last_node, last_node)} | acc]
     end)
     |> Enum.to_list()
   end
@@ -60,10 +61,10 @@ defmodule MerkleTreeRoot do
   # Processes merkle tree (splits into pairs and calculates next layer nodes)
   @spec process_tree([tree_node()], boolean()) :: {:ok, root()}
   defp process_tree([{_num, tree_root}], _),
-    do: {:ok, tree_root}
+       do: {:ok, tree_root}
 
   defp process_tree([tree_root], _),
-    do: {:ok, tree_root}
+       do: {:ok, tree_root}
 
   defp process_tree(nodes, parallel) do
     nodes
