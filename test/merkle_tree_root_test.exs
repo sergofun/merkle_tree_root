@@ -13,7 +13,9 @@ defmodule MerkleTreeRootTest do
     end
   end
 
-  # reference implementation
+  ################################################################################################
+  #                                 reference implementation                                     #
+  ################################################################################################
   defp reference_computing(transactions) do
     transactions
     |> Enum.map(&(hash(&1)))

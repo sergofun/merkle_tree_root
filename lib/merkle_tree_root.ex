@@ -11,6 +11,13 @@ defmodule MerkleTreeRoot do
   @type tree_chunk :: [node()]
 
   @doc """
+    takes out transactions in accordance with provided adapter and parameters
+  """
+  @spec get_txns(module(), term()) :: Enumerable.t()
+  def get_txns(adapter_module, params),
+      do: adapter_module.transactions(params)
+
+  @doc """
     Calculates Merkle tree root
     ## parameters
       - transactions: transactions collection
