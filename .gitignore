@@ -24,3 +24,9 @@ merkle_tree_root-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# IDE related stuff
+/.idea/
+*.iml
+
+
