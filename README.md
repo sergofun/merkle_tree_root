@@ -11,10 +11,7 @@ node to calculate the next layer nodes.
 
 ## Installation
 
----
-*[Preconditions]*
-Installed elixir(1.12 or above)
----
+> **_Preconditions:_** Installed elixir(1.12 or above)
 
 ### As a library
 * Add `merkle_tree_root` to the list of dependencies in `mix.exs` as:
@@ -89,11 +86,10 @@ As you can see, if amount of transactions is less than 50000, the sequential pro
 processing, because the last one has to do nodes sorting and enumeration during each tree layer processing. On the other hand
 parallel processing becomes more efficient in the case of large amounts of transactions. Therefore, I've decided to keep both.
 
----
-*[NOTE]*
+> **_NOTE:_**
 I also tried to figure out what could be improved from the performance point of view for the nodes calculation. I thought
 that I could get rid of splitting nodes to the pair(as a separate operation) and list reverse operation
 (by keeping list traverse direction), but after some measurements such approach hasn't shown any significant performance 
 improvements and made code less readable, that's why I've decided to keep it as it is.
----
+
 
