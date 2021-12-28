@@ -3,9 +3,7 @@ defmodule MerkleTreeRoot.FileAdapter do
     Adapter for file, which has one transaction per line
   """
 
-  alias MerkleTreeRoot.Source
-
-  @behaviour Source
+  @behaviour MerkleTreeRoot.Source
 
   @impl true
   def transactions(file_path) do

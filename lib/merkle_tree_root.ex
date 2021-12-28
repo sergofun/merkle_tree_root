@@ -1,6 +1,12 @@
 defmodule MerkleTreeRoot do
   @moduledoc """
-  Documentation for `MerkleTreeRoot`.
+    Functions for computing Merkle tree root and transactions collection acquisition.
+
+    ## example
+      iex> MerkleTreeRoot.FileAdapter |> MerkleTreeRoot.txns("./priv/sample_8") |> MerkleTreeRoot.compute
+        {:ok, "bdd07e07772861b7c4e954674c2b012246249f4f4e9c0071d387d3077909c919"}
+      iex> MerkleTreeRoot.FileAdapter |> MerkleTreeRoot.txns("./priv/sample_1000") |> MerkleTreeRoot.compute(paraller: true)
+        {:ok, "ad079a53015f07e9ba30e9118eab6f673d1f70dad2d6dc8c9d84fe9f8d51c594"}
   """
 
   require Logger
@@ -11,10 +17,10 @@ defmodule MerkleTreeRoot do
   @type tree_chunk :: [node()]
 
   @doc """
-    takes out transactions in accordance with provided adapter and parameters
+    Takes out transactions in accordance with provided adapter and parameters
   """
-  @spec get_txns(module(), term()) :: Enumerable.t()
-  def get_txns(adapter_module, params),
+  @spec txns(module(), term()) :: Enumerable.t()
+  def txns(adapter_module, params),
       do: adapter_module.transactions(params)
 
   @doc """
@@ -34,13 +40,16 @@ defmodule MerkleTreeRoot do
   def compute([], _options),
       do: {:error, "wrong transactions collection"}
 
-  def compute(transactions, options) do
+  def compute(transactions, options) when is_list(transactions) do
     parallel_processing = Keyword.get(options, :parallel, false)
 
     transactions
     |> prepare_first_layer_nodes(parallel_processing)
     |> process_tree(parallel_processing)
   end
+
+  def compute(_transactions, _options),
+      do: {:error, "wrong transactions collection"}
 
   # Prepares bottom layer nodes. In case of parallel processing it also assigns sequence numbers for the subsequent
   # sorting
@@ -82,7 +91,7 @@ defmodule MerkleTreeRoot do
 
   # Groups nodes for the tree next layer processing
   # for the single process calculation just splits into chunks
-  # for the parallel calculation performs nodes sorting and numeration
+  # for the parallel calculation performs nodes sorting and nodes pair numeration
   @spec prepare_nodes([tree_node()], boolean()) :: [tree_chunk()]
   defp prepare_nodes(nodes, false),
     do: Enum.chunk_every(nodes, 2)
