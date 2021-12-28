@@ -12,7 +12,7 @@ node to calculate the next layer nodes.
 ## Installation
 
 ---
-**[Preconditions]**
+*[Preconditions]*
 Installed elixir(1.12 or above)
 ---
 
@@ -90,7 +90,7 @@ processing, because the last one has to do nodes sorting and enumeration during 
 parallel processing becomes more efficient in the case of large amounts of transactions. Therefore, I've decided to keep both.
 
 ---
-**[NOTE]**
+*[NOTE]*
 I also tried to figure out what could be improved from the performance point of view for the nodes calculation. I thought
 that I could get rid of splitting nodes to the pair(as a separate operation) and list reverse operation
 (by keeping list traverse direction), but after some measurements such approach hasn't shown any significant performance 
