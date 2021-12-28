@@ -40,16 +40,13 @@ defmodule MerkleTreeRoot do
   def compute([], _options),
       do: {:error, "wrong transactions collection"}
 
-  def compute(transactions, options) when is_list(transactions) do
+  def compute(transactions, options) do
     parallel_processing = Keyword.get(options, :parallel, false)
 
     transactions
     |> prepare_first_layer_nodes(parallel_processing)
     |> process_tree(parallel_processing)
   end
-
-  def compute(_transactions, _options),
-      do: {:error, "wrong transactions collection"}
 
   # Prepares bottom layer nodes. In case of parallel processing it also assigns sequence numbers for the subsequent
   # sorting
