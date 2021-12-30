@@ -65,7 +65,6 @@ defmodule MerkleTreeRoot do
     |> Flow.reduce(fn -> [] end, fn
       [{left_num, left_node}, {right_num, right_node}], acc ->
         [{left_num + right_num, hash(left_node, right_node)} | acc]
-      result, [] -> result
       [{num, last_node}], acc -> [{num + num, hash(last_node, last_node)} | acc]
     end)
     |> Enum.to_list()
